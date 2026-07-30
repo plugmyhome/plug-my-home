@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plug My Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#2A2D7C;
+    --navy-deep:#1C1E56;
+    --navy-tint:#F3F3FA;
+    --orange:#FAA41A;
+    --orange-deep:#C87A00;
+    --orange-tint:#FFF2DD;
+    --white:#FFFFFF;
+    --ink:#1E2033;
+    --ink-soft:#5B5D77;
+    --line:#E4E4F0;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',sans-serif;color:var(--ink);background:var(--white);}
+  h1,h2,h3,.disp{font-family:'Space Grotesk',sans-serif;}
+  button{font-family:'Inter',sans-serif;cursor:pointer;}
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+  /* header */
+  header{position:sticky;top:0;background:var(--white);z-index:40;border-bottom:1px solid var(--line);}
+  .headbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:1180px;margin:0 auto;gap:16px;}
+  .logo{display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;}
+  .logo-mark{width:38px;height:38px;flex-shrink:0;}
+  .logo-word{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;color:var(--navy);white-space:nowrap;}
+  .logo-word span{color:var(--orange);}
+  nav.mainnav{display:flex;gap:4px;flex-wrap:wrap;}
+  nav.mainnav button{background:none;border:none;padding:9px 14px;border-radius:999px;font-size:14px;font-weight:500;color:var(--ink-soft);transition:.15s;}
+  nav.mainnav button:hover{background:var(--navy-tint);color:var(--navy);}
+  nav.mainnav button.on{background:var(--navy);color:var(--white);}
+  .head-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .btn{border-radius:999px;border:1.5px solid var(--navy);background:var(--white);color:var(--navy);padding:9px 18px;font-size:14px;font-weight:600;white-space:nowrap;transition:.15s;}
+  .btn:hover{background:var(--navy);color:var(--white);}
+  .btn-fill{background:var(--orange);border-color:var(--orange);color:#3A2400;}
+  .btn-fill:hover{background:var(--orange-deep);border-color:var(--orange-deep);color:var(--white);}
+  .btn-ghost{border-color:var(--line);color:var(--ink-soft);}
+  .btn-ghost:hover{background:var(--navy-tint);color:var(--navy);border-color:var(--navy-tint);}
+  .btn-sm{padding:6px 12px;font-size:13px;}
+  .btn-danger{border-color:#e0b3b3;color:#a13a3a;}
+  .btn-danger:hover{background:#a13a3a;border-color:#a13a3a;color:#fff;}
+
+  /* hero */
+  .hero{background:var(--navy);position:relative;overflow:hidden;}
+  .hero .wrap{display:flex;align-items:center;gap:48px;padding:72px 24px 88px;}
+  .hero-copy{flex:1;min-width:280px;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(250,164,26,.15);color:var(--orange);font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;margin-bottom:20px;}
+  .hero h1{color:var(--white);font-size:44px;line-height:1.12;margin:0 0 18px;font-weight:700;}
+  .hero h1 em{color:var(--orange);font-style:normal;}
+  .hero p{color:#C7C8E6;font-size:17px;line-height:1.6;max-width:460px;margin:0 0 32px;}
+  .hero-ctas{display:flex;gap:12px;flex-wrap:wrap;}
+  .hero-visual{flex:1;min-width:260px;display:flex;justify-content:center;}
+
+  /* cord divider */
+  .cord{height:36px;width:100%;}
+
+  /* category section */
+  section{padding:64px 0;}
+  .sect-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;}
+  .sect-head h2{font-size:28px;margin:0;color:var(--navy-deep);}
+  .sect-head p{color:var(--ink-soft);margin:6px 0 0;font-size:15px;}
+  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  .cat-card{border-radius:20px;padding:32px;position:relative;overflow:hidden;cursor:pointer;transition:transform .18s;border:1px solid var(--line);}
+  .cat-card:hover{transform:translateY(-3px);}
+  .cat-card.navy{background:var(--navy);}
+  .cat-card.orange{background:var(--orange-tint);}
+  .cat-card .plug-icon{width:44px;height:44px;margin-bottom:18px;}
+  .cat-card h3{font-size:24px;margin:0 0 8px;}
+  .cat-card.navy h3{color:var(--white);}
+  .cat-card.orange h3{color:var(--navy-deep);}
+  .cat-card p.sub{font-size:14px;margin:0 0 20px;}
+  .cat-card.navy p.sub{color:#B9BAE0;}
+  .cat-card.orange p.sub{color:#8A6218;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{font-size:12.5px;padding:6px 12px;border-radius:999px;font-weight:500;}
+  .cat-card.navy .chip{background:rgba(255,255,255,.12);color:#E3E4F5;}
+  .cat-card.orange .chip{background:rgba(42,45,124,.08);color:var(--navy-deep);}
+  .cat-arrow{position:absolute;right:28px;bottom:28px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .cat-card.navy .cat-arrow{background:var(--orange);color:#3A2400;}
+  .cat-card.orange .cat-arrow{background:var(--navy);color:#fff;}
+
+  /* breadcrumb + filters */
+  .crumb{font-size:14px;color:var(--ink-soft);margin-bottom:6px;}
+  .crumb b{color:var(--navy);cursor:pointer;}
+  .crumb b:hover{text-decoration:underline;}
+  .filter-row{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0 8px;}
+  .filter-chip{border:1.5px solid var(--line);background:var(--white);padding:8px 16px;border-radius:999px;font-size:13.5px;font-weight:500;color:var(--ink-soft);transition:.15s;}
+  .filter-chip:hover{border-color:var(--navy);color:var(--navy);}
+  .filter-chip.on{background:var(--navy);border-color:var(--navy);color:var(--white);}
+  .filter-chip.add{border-style:dashed;color:var(--orange-deep);border-color:var(--orange);}
+  .subcat-manage{display:flex;align-items:center;gap:6px;}
+  .subcat-manage .x{background:none;border:none;color:#a13a3a;font-size:14px;padding:0 2px 0 6px;line-height:1;}
+
+  /* product grid */
+  .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:20px;margin-top:24px;}
+  .prod-card{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--white);display:flex;flex-direction:column;position:relative;transition:box-shadow .15s;}
+  .prod-card:hover{box-shadow:0 6px 20px rgba(30,32,51,.08);}
+  .prod-img{aspect-ratio:1/1;background:var(--navy-tint);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .prod-img img{width:100%;height:100%;object-fit:cover;}
+  .prod-img .ph{color:#B7B9DC;}
+  .prod-body{padding:14px 16px 16px;flex:1;display:flex;flex-direction:column;}
+  .prod-tag{font-size:11px;font-weight:600;color:var(--orange-deep);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+  .prod-name{font-size:15.5px;font-weight:600;color:var(--navy-deep);margin:0 0 6px;}
+  .prod-desc{font-size:13px;color:var(--ink-soft);line-height:1.5;margin:0 0 12px;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .prod-price{font-size:17px;font-weight:700;color:var(--navy);}
+  .prod-admin-bar{display:flex;gap:8px;padding:0 16px 14px;}
+  .empty{border:1.5px dashed var(--line);border-radius:16px;padding:56px 24px;text-align:center;color:var(--ink-soft);margin-top:24px;}
+  .empty b{display:block;color:var(--navy-deep);font-size:17px;margin-bottom:6px;}
+
+  /* contact */
+  .contact-wrap{background:var(--navy-tint);border-radius:24px;padding:44px;display:flex;gap:40px;flex-wrap:wrap;align-items:center;}
+  .contact-left{flex:1;min-width:240px;}
+  .contact-left h2{font-size:26px;color:var(--navy-deep);margin:0 0 10px;}
+  .contact-left p{color:var(--ink-soft);font-size:15px;line-height:1.6;margin:0;}
+  .contact-cards{flex:1;min-width:260px;display:flex;flex-direction:column;gap:12px;}
+  .contact-card{background:var(--white);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;border:1px solid var(--line);text-decoration:none;transition:.15s;}
+  .contact-card:hover{border-color:var(--orange);}
+  .contact-ic{width:40px;height:40px;border-radius:50%;background:var(--orange-tint);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--orange-deep);font-size:18px;}
+  .contact-card .lbl{font-size:12px;color:var(--ink-soft);margin:0 0 2px;}
+  .contact-card .val{font-size:15px;font-weight:600;color:var(--navy-deep);margin:0;}
+
+  footer{border-top:1px solid var(--line);padding:32px 0;margin-top:20px;}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  footer .fine{font-size:13px;color:var(--ink-soft);}
+  footer .admin-link{font-size:13px;color:var(--ink-soft);background:none;border:none;text-decoration:underline;}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(20,21,50,.55);display:flex;align-items:flex-start;justify-content:center;z-index:100;padding:40px 20px;overflow-y:auto;}
+  .modal{background:var(--white);border-radius:18px;max-width:520px;width:100%;padding:30px 30px 26px;margin-bottom:40px;}
+  .modal h3{margin:0 0 4px;font-size:20px;color:var(--navy-deep);}
+  .modal p.hint{font-size:13px;color:var(--ink-soft);margin:0 0 20px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--navy-deep);margin-bottom:6px;}
+  .field input[type=text],.field input[type=number],.field input[type=email],.field input[type=tel],.field input[type=password],.field textarea,.field select{
+    width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;font-family:'Inter',sans-serif;color:var(--ink);background:var(--white);
+  }
+  .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--navy);}
+  .field textarea{resize:vertical;min-height:70px;}
+  .field-row{display:flex;gap:12px;}
+  .field-row .field{flex:1;}
+  .imgpick{border:1.5px dashed var(--line);border-radius:12px;padding:14px;text-align:center;cursor:pointer;position:relative;}
+  .imgpick img{max-height:120px;margin:0 auto 8px;border-radius:8px;}
+  .imgpick input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+  .imgpick .lbl{font-size:13px;color:var(--ink-soft);}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;}
+  .close-x{position:absolute;top:16px;right:16px;background:none;border:none;font-size:18px;color:var(--ink-soft);}
+  .modal{position:relative;}
+  .msg{font-size:13px;padding:9px 12px;border-radius:8px;margin-bottom:14px;}
+  .msg.err{background:#FBE9E9;color:#a13a3a;}
+  .msg.ok{background:#E9F5EC;color:#2E7D46;}
+
+  /* admin bar */
+  .admin-strip{background:var(--navy-deep);color:#fff;padding:10px 0;}
+  .admin-strip .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .admin-strip .tag{font-size:12px;background:var(--orange);color:#3A2400;font-weight:700;padding:4px 10px;border-radius:999px;}
+  .admin-tabs{display:flex;gap:6px;}
+  .admin-tabs button{background:none;border:1px solid rgba(255,255,255,.25);color:#D6D7EE;padding:6px 14px;border-radius:999px;font-size:13px;}
+  .admin-tabs button.on{background:var(--orange);border-color:var(--orange);color:#3A2400;font-weight:600;}
+  .admin-panel{background:var(--navy-tint);border-radius:16px;padding:24px;margin-top:20px;}
+  .subcat-editrow{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+  .plist{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--white);}
+  .plist-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);}
+  .plist-row:last-child{border-bottom:none;}
+  .plist-thumb{width:44px;height:44px;border-radius:8px;background:var(--navy-tint);object-fit:cover;flex-shrink:0;}
+  .plist-info{flex:1;min-width:0;}
+  .plist-info .n{font-size:14px;font-weight:600;color:var(--navy-deep);margin:0;}
+  .plist-info .m{font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;}
+  @media(max-width:760px){
+    .hero .wrap{flex-direction:column;padding:48px 20px 60px;text-align:center;}
+    .hero p{max-width:none;}
+    .hero-ctas{justify-content:center;}
+    .cat-grid{grid-template-columns:1fr;}
+    .contact-wrap{padding:28px;}
+    nav.mainnav{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="headbar">
+    <div class="logo" onclick="go('home')">
+      <svg class="logo-mark" viewBox="0 0 44 44" fill="none">
+        <rect width="44" height="44" rx="12" fill="#2A2D7C"/>
+        <path d="M22 12v6" stroke="#FAA41A" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M17 12v6" stroke="#FAA41A" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M14.5 18h15a1 1 0 0 1 1 1v2a8 8 0 0 1-8 8h-1a8 8 0 0 1-8-8v-2a1 1 0 0 1 1-1Z" stroke="#FFFFFF" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M22 29v4" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <div class="logo-word">Plug My <span>Home</span></div>
+    </div>
+    <nav class="mainnav">
+      <button id="nav-home" onclick="go('home')">Home</button>
+      <button id="nav-elec" onclick="openCategory('Electronics')">Electronics</button>
+      <button id="nav-homeacc" onclick="openCategory('Home Accessories')">Home Accessories</button>
+      <button id="nav-contact" onclick="scrollToContact()">Contact</button>
+    </nav>
+    <div class="head-right" id="head-right"></div>
+  </div>
+</header>
+
+<div id="admin-strip-holder"></div>
+
+<main id="main"></main>
+
+<footer>
+  <div class="wrap">
+    <div class="fine" id="footer-fine">© <span id="foot-year"></span> Plug My Home. All rights reserved.</div>
+    <button class="admin-link" id="foot-admin-link" onclick="handleAdminFooterClick()">Admin sign in</button>
+  </div>
+</footer>
+
+<div id="modal-root"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+<script type="application/json" id="pmh-data">
+{"categories":{"Electronics":["Phones","Earphones","Powerbanks","Car Accessories","Lamps","Cameras"],"Home Accessories":["Furniture","Kitchenware","Kitchen Accessories","Home Deco"]},"products":[],"settings":{"businessName":"Plug My Home","email":"info@plugmyhome.co.ke","phone":"+254 700 000 000","currency":"KSh","adminPassword":"admin123"}}
+</script>
+
+<script>
+/* =====================================================================
+   FIREBASE SETUP — paste your project's config below (see chat for the
+   step-by-step). Until you do, the site runs on the baked-in data below
+   and a local admin password, same as before.
+   ===================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyD8kzObuDBFwBmXXA2Q6NhigogWYZ7CSZE",
+  authDomain: "plug-my-home.firebaseapp.com",
+  projectId: "plug-my-home",
+  storageBucket: "plug-my-home.firebasestorage.app",
+  messagingSenderId: "356310099257",
+  appId: "1:356310099257:web:01f6f704436276dc4cf4e8",
+  measurementId: "G-8FVLJBCTFR"
+};
+const FIREBASE_ENABLED = !!(FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('PASTE'));
+let fbAuth = null, fbDb = null, fbUnsubs = [];
+if(FIREBASE_ENABLED){
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    fbAuth = firebase.auth();
+    fbDb = firebase.firestore();
+  }catch(e){ console.warn('Firebase init failed, falling back to local mode', e); }
+}
+
+/* ---------------- state ---------------- */
+let state = {
+  view:'home',            // home | category
+  activeCategory:null,
+  activeSub:'All',
+  isAdmin:false,
+  adminView:'products',   // products | categories | settings
+  categories:null,
+  products:null,
+  settings:null,
+  ready:false
+};
+const MAIN_CATS = ['Electronics','Home Accessories'];
+const DEFAULT_CATEGORIES = {
+  'Electronics':['Phones','Earphones','Powerbanks','Car Accessories','Lamps','Cameras'],
+  'Home Accessories':['Furniture','Kitchenware','Kitchen Accessories','Home Deco']
+};
+const DEFAULT_SETTINGS = {
+  businessName:'Plug My Home',
+  email:'info@plugmyhome.co.ke',
+  phone:'+254 700 000 000',
+  currency:'KSh',
+  adminPassword:'admin123'
+};
+
+/* ---------------- storage helpers ----------------
+   Three layers, tried in order:
+   1) Firebase Firestore — if FIREBASE_CONFIG is filled in, this is the live shared
+      database. Every visitor's browser stays in sync in real time via onSnapshot.
+   2) window.storage — used automatically when this file runs inside Claude.ai.
+   3) Baked-in data (the "pmh-data" script tag) + a local-only draft in localStorage —
+      the fallback for a plain static host with no backend configured yet. */
+const HAS_CLAUDE_STORAGE = (typeof window !== 'undefined') && !!window.storage && typeof window.storage.get === 'function';
+let HAS_LOCAL_STORAGE = false;
+try{ const t='__pmh_test__'; localStorage.setItem(t,'1'); localStorage.removeItem(t); HAS_LOCAL_STORAGE = true; }catch(e){ HAS_LOCAL_STORAGE = false; }
+
+function readBakedData(){
+  try{
+    const el = document.getElementById('pmh-data');
+    const parsed = JSON.parse(el.textContent);
+    return {
+      categories: parsed.categories || JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),
+      products: parsed.products || [],
+      settings: {...DEFAULT_SETTINGS, ...(parsed.settings||{})}
+    };
+  }catch(e){
+    return { categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)), products: [], settings: {...DEFAULT_SETTINGS} };
+  }
+}
+async function storageGet(key){
+  if(HAS_CLAUDE_STORAGE){ try{ const r = await window.storage.get(key, true); return r ? r.value : null; }catch(e){ return null; } }
+  if(HAS_LOCAL_STORAGE){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
+  return null;
+}
+async function storageSet(key, value){
+  if(HAS_CLAUDE_STORAGE){ try{ await window.storage.set(key, value, true); }catch(e){ console.warn('could not save', key, e); } return; }
+  if(HAS_LOCAL_STORAGE){ try{ localStorage.setItem(key, value); }catch(e){ console.warn('could not save', key, e); } return; }
+}
+
+/* ---------- Firebase real-time sync ---------- */
+function startFirebaseSync(){
+  return new Promise((resolve)=>{
+    if(!FIREBASE_ENABLED || !fbDb){ resolve(false); return; }
+    let got = {cat:false, set:false, prod:false};
+    const done = ()=>{ if(got.cat && got.set && got.prod) resolve(true); };
+
+    fbUnsubs.push(fbDb.collection('pmh_meta').doc('categories').onSnapshot(snap=>{
+      if(snap.exists && snap.data().value) state.categories = snap.data().value;
+      else fbDb.collection('pmh_meta').doc('categories').set({value: state.categories}).catch(e=>console.warn(e));
+      got.cat = true; done();
+      if(state.ready) render();
+    }, err=>{ console.warn('categories sync error', err); got.cat=true; done(); }));
+
+    fbUnsubs.push(fbDb.collection('pmh_meta').doc('settings').onSnapshot(snap=>{
+      if(snap.exists) state.settings = {...DEFAULT_SETTINGS, ...snap.data()};
+      else { const {adminPassword, ...pub} = state.settings; fbDb.collection('pmh_meta').doc('settings').set(pub).catch(e=>console.warn(e)); }
+      got.set = true; done();
+      if(state.ready) render();
+    }, err=>{ console.warn('settings sync error', err); got.set=true; done(); }));
+
+    fbUnsubs.push(fbDb.collection('pmh_products').onSnapshot(snap=>{
+      state.products = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      got.prod = true; done();
+      if(state.ready) render();
+    }, err=>{ console.warn('products sync error', err); got.prod=true; done(); }));
+  });
+}
+
+async function loadAll(){
+  const baked = readBakedData();
+  state.categories = baked.categories;
+  state.products = baked.products;
+  state.settings = baked.settings;
+
+  if(FIREBASE_ENABLED && fbDb){
+    try{ await startFirebaseSync(); }catch(e){ console.warn('Firebase sync failed, using local data', e); }
+  }else{
+    try{ const c = await storageGet('pmh_categories'); if(c) state.categories = JSON.parse(c); }catch(e){}
+    try{ const p = await storageGet('pmh_products'); if(p) state.products = JSON.parse(p); }catch(e){}
+    try{ const s = await storageGet('pmh_settings'); if(s) state.settings = {...DEFAULT_SETTINGS, ...JSON.parse(s)}; }catch(e){}
+  }
+  state.ready = true;
+}
+
+/* Categories & settings: small documents, safe to write in full each time. */
+async function saveCategories(){
+  if(FIREBASE_ENABLED && fbDb){ try{ await fbDb.collection('pmh_meta').doc('categories').set({value: state.categories}); }catch(e){ console.warn(e); alert('Could not save categories — check your connection and that you are signed in.'); } return; }
+  await storageSet('pmh_categories', JSON.stringify(state.categories));
+}
+async function saveSettings(){
+  if(FIREBASE_ENABLED && fbDb){ try{ const {adminPassword, ...pub} = state.settings; await fbDb.collection('pmh_meta').doc('settings').set(pub); }catch(e){ console.warn(e); alert('Could not save settings — check your connection and that you are signed in.'); } return; }
+  await storageSet('pmh_settings', JSON.stringify(state.settings));
+}
+/* Products: kept as local bulk save for the non-Firebase fallback only.
+   When Firebase is enabled, each product is written to its own document instead — see
+   writeProductDoc() / removeProductDoc() below, called directly from saveProduct/deleteProduct. */
+async function saveProducts(){
+  if(FIREBASE_ENABLED && fbDb) return; // handled per-document instead
+  await storageSet('pmh_products', JSON.stringify(state.products));
+}
+async function writeProductDoc(product){
+  const {id, ...rest} = product;
+  await fbDb.collection('pmh_products').doc(id).set(rest);
+}
+async function removeProductDoc(id){
+  await fbDb.collection('pmh_products').doc(id).delete();
+}
+
+/* ---------------- publish (bake current state into a downloadable file) ---------------- */
+function downloadUpdatedSite(){
+  const dataScript = document.getElementById('pmh-data');
+  dataScript.textContent = JSON.stringify({categories: state.categories, products: state.products, settings: state.settings});
+  const htmlStr = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  const blob = new Blob([htmlStr], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'index.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ---------------- navigation ---------------- */
+function go(view){ state.view = view; state.activeSub='All'; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+function openCategory(cat){ state.view='category'; state.activeCategory=cat; state.activeSub='All'; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+function setSub(sub){ state.activeSub = sub; render(); }
+function scrollToContact(){
+  if(state.view!=='home'){ go('home'); setTimeout(()=>document.getElementById('contact-section')?.scrollIntoView({behavior:'smooth'}),80); }
+  else{ document.getElementById('contact-section')?.scrollIntoView({behavior:'smooth'}); }
+}
+
+/* ---------------- admin auth ---------------- */
+function handleAdminFooterClick(){
+  if(state.isAdmin){ logoutAdmin(); }
+  else openLoginModal();
+}
+function openLoginModal(){
+  if(FIREBASE_ENABLED){
+    renderModal(`
+      <button class="close-x" onclick="closeModal()">&times;</button>
+      <h3>Admin sign in</h3>
+      <p class="hint">Sign in with the admin account you created in Firebase Authentication.</p>
+      <div id="login-msg"></div>
+      <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="Enter password"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-fill" onclick="tryLogin()">Sign in</button>
+      </div>
+    `);
+    setTimeout(()=>document.getElementById('login-email')?.focus(),50);
+  }else{
+    renderModal(`
+      <button class="close-x" onclick="closeModal()">&times;</button>
+      <h3>Admin sign in</h3>
+      <p class="hint">Enter the admin password to manage products and categories.</p>
+      <div id="login-msg"></div>
+      <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="Enter password"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-fill" onclick="tryLogin()">Sign in</button>
+      </div>
+    `);
+    setTimeout(()=>document.getElementById('login-pass')?.focus(),50);
+  }
+  document.getElementById('login-pass')?.addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
+}
+async function tryLogin(){
+  if(FIREBASE_ENABLED && fbAuth){
+    const email = (document.getElementById('login-email')?.value || '').trim();
+    const pass = document.getElementById('login-pass').value;
+    if(!email || !pass){ document.getElementById('login-msg').innerHTML = '<div class="msg err">Enter both email and password.</div>'; return; }
+    try{
+      await fbAuth.signInWithEmailAndPassword(email, pass);
+      state.isAdmin = true; closeModal(); render();
+    }catch(e){
+      console.warn(e);
+      document.getElementById('login-msg').innerHTML = '<div class="msg err">Sign-in failed. Check your email and password.</div>';
+    }
+    return;
+  }
+  const val = document.getElementById('login-pass').value;
+  const correct = (state.settings && state.settings.adminPassword) || DEFAULT_SETTINGS.adminPassword;
+  if(val === correct){
+    state.isAdmin = true; closeModal(); render();
+  }else{
+    document.getElementById('login-msg').innerHTML = '<div class="msg err">Incorrect password. Try again.</div>';
+  }
+}
+
+/* ---------------- modal helpers ---------------- */
+function renderModal(inner){
+  document.getElementById('modal-root').innerHTML = `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">${inner}</div></div>`;
+}
+function closeModal(){ document.getElementById('modal-root').innerHTML=''; }
+
+/* ---------------- image resize ---------------- */
+function resizeImageFile(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const maxW = 800;
+        const scale = Math.min(1, maxW/img.width);
+        const w = Math.round(img.width*scale), h = Math.round(img.height*scale);
+        const canvas = document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg',0.82));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ---------------- product CRUD ---------------- */
+function openProductModal(editId){
+  const editing = editId ? state.products.find(p=>p.id===editId) : null;
+  const cat = editing ? editing.category : (state.activeCategory || MAIN_CATS[0]);
+  const subOptions = (state.categories[cat]||[]).map(s=>`<option value="${escapeHtml(s)}" ${editing && editing.subcategory===s?'selected':''}>${escapeHtml(s)}</option>`).join('');
+  renderModal(`
+    <button class="close-x" onclick="closeModal()">&times;</button>
+    <h3>${editing? 'Edit product':'Add product'}</h3>
+    <p class="hint">Fill in the details clients will see.</p>
+    <div id="prod-msg"></div>
+    <div class="field-row">
+      <div class="field"><label>Main category</label>
+        <select id="pf-cat" onchange="refreshSubOptions()">
+          ${MAIN_CATS.map(c=>`<option value="${c}" ${cat===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Subcategory</label>
+        <select id="pf-sub">${subOptions}</select>
+      </div>
+    </div>
+    <div class="field"><label>Item name</label><input type="text" id="pf-name" value="${editing?escapeHtml(editing.name):''}" placeholder="e.g. Samsung Galaxy A15"></div>
+    <div class="field"><label>Description</label><textarea id="pf-desc" placeholder="Short description clients will see">${editing?escapeHtml(editing.description):''}</textarea></div>
+    <div class="field"><label>Price (${escapeHtml(state.settings.currency)})</label><input type="number" id="pf-price" min="0" value="${editing?editing.price:''}" placeholder="e.g. 2500"></div>
+    <div class="field"><label>Image</label>
+      <div class="imgpick" id="imgpick">
+        ${editing && editing.image ? `<img src="${editing.image}" id="img-preview">` : `<div class="lbl" id="img-preview-lbl">Tap to upload a photo (JPG/PNG)</div>`}
+        <input type="file" accept="image/*" id="pf-image" onchange="handleImagePick(event)">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-fill" onclick="saveProduct(${editing? `'${editing.id}'`:'null'})">${editing?'Save changes':'Add product'}</button>
+    </div>
+  `);
+  window._pendingImage = editing ? editing.image : null;
+}
+function refreshSubOptions(){
+  const cat = document.getElementById('pf-cat').value;
+  const sel = document.getElementById('pf-sub');
+  sel.innerHTML = (state.categories[cat]||[]).map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+}
+async function handleImagePick(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const dataUrl = await resizeImageFile(file);
+  window._pendingImage = dataUrl;
+  const pick = document.getElementById('imgpick');
+  const lbl = document.getElementById('img-preview-lbl');
+  const img = document.getElementById('img-preview');
+  if(img){ img.src = dataUrl; } else if(lbl){ pick.insertBefore(Object.assign(document.createElement('img'),{src:dataUrl,id:'img-preview'}), lbl); lbl.textContent='Tap to change photo'; }
+}
+async function saveProduct(id){
+  const cat = document.getElementById('pf-cat').value;
+  const sub = document.getElementById('pf-sub').value;
+  const name = document.getElementById('pf-name').value.trim();
+  const desc = document.getElementById('pf-desc').value.trim();
+  const price = parseFloat(document.getElementById('pf-price').value);
+  if(!name || !sub || isNaN(price) || price<0){
+    document.getElementById('prod-msg').innerHTML = '<div class="msg err">Please fill in item name, subcategory and a valid price.</div>';
+    return;
+  }
+  const existing = id ? state.products.find(x=>x.id===id) : null;
+  const data = {category:cat, subcategory:sub, name, description:desc, price, image: window._pendingImage || (existing && existing.image) || null};
+
+  if(FIREBASE_ENABLED && fbDb){
+    const finalId = id || ('p_'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
+    try{
+      await writeProductDoc({id: finalId, ...data});
+    }catch(e){
+      console.warn(e);
+      document.getElementById('prod-msg').innerHTML = '<div class="msg err">Could not save — check your connection and that you\'re signed in.</div>';
+      return;
+    }
+  }else{
+    if(existing){ Object.assign(existing, data); }
+    else{ state.products.push({id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), ...data}); }
+    await saveProducts();
+  }
+  closeModal();
+  render();
+}
+function confirmDeleteProduct(id){
+  const p = state.products.find(x=>x.id===id);
+  if(!p) return;
+  renderModal(`
+    <button class="close-x" onclick="closeModal()">&times;</button>
+    <h3>Delete "${escapeHtml(p.name)}"?</h3>
+    <p class="hint">This can't be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="deleteProduct('${id}')">Delete</button>
+    </div>
+  `);
+}
+async function deleteProduct(id){
+  if(FIREBASE_ENABLED && fbDb){
+    try{ await removeProductDoc(id); }
+    catch(e){ console.warn(e); alert('Could not delete — check your connection and that you\'re signed in.'); return; }
+  }else{
+    state.products = state.products.filter(p=>p.id!==id);
+    await saveProducts();
+  }
+  closeModal();
+  render();
+}
+
+/* ---------------- category (subcategory) CRUD ---------------- */
+function openAddSubModal(cat){
+  renderModal(`
+    <button class="close-x" onclick="closeModal()">&times;</button>
+    <h3>Add subcategory to ${escapeHtml(cat)}</h3>
+    <div id="sub-msg"></div>
+    <div class="field"><label>Subcategory name</label><input type="text" id="new-sub-name" placeholder="e.g. Blenders"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-fill" onclick="addSubcategory('${escapeHtml(cat).replace(/'/g,"\\'")}')">Add</button>
+    </div>
+  `);
+  setTimeout(()=>document.getElementById('new-sub-name')?.focus(),50);
+}
+async function addSubcategory(cat){
+  const val = document.getElementById('new-sub-name').value.trim();
+  if(!val){ document.getElementById('sub-msg').innerHTML='<div class="msg err">Enter a subcategory name.</div>'; return; }
+  if(state.categories[cat].some(s=>s.toLowerCase()===val.toLowerCase())){
+    document.getElementById('sub-msg').innerHTML='<div class="msg err">That subcategory already exists.</div>'; return;
+  }
+  state.categories[cat].push(val);
+  await saveCategories();
+  closeModal();
+  render();
+}
+function confirmDeleteSub(cat, sub){
+  const count = state.products.filter(p=>p.category===cat && p.subcategory===sub).length;
+  renderModal(`
+    <button class="close-x" onclick="closeModal()">&times;</button>
+    <h3>Remove "${escapeHtml(sub)}"?</h3>
+    <p class="hint">${count>0? `${count} product(s) currently use this subcategory. They will stay listed under ${escapeHtml(cat)} but lose this subcategory tag.` : 'No products use this subcategory yet.'}</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="deleteSubcategory('${escapeHtml(cat).replace(/'/g,"\\'")}','${escapeHtml(sub).replace(/'/g,"\\'")}')">Remove</button>
+    </div>
+  `);
+}
+async function deleteSubcategory(cat, sub){
+  state.categories[cat] = state.categories[cat].filter(s=>s!==sub);
+  state.products.forEach(p=>{ if(p.category===cat && p.subcategory===sub) p.subcategory='Uncategorized'; });
+  await saveCategories();
+  await saveProducts();
+  closeModal();
+  render();
+}
+
+/* ---------------- settings ---------------- */
+async function saveSettingsForm(){
+  const email = document.getElementById('set-email').value.trim();
+  const phone = document.getElementById('set-phone').value.trim();
+  const currency = document.getElementById('set-currency').value.trim() || 'KSh';
+  const bizName = document.getElementById('set-bizname').value.trim() || 'Plug My Home';
+  const newPass = document.getElementById('set-newpass') ? document.getElementById('set-newpass').value : '';
+  const msgBox = document.getElementById('settings-msg');
+  if(!email || !phone){ msgBox.innerHTML='<div class="msg err">Email and phone are required.</div>'; return; }
+  state.settings.email = email;
+  state.settings.phone = phone;
+  state.settings.currency = currency;
+  state.settings.businessName = bizName;
+
+  if(newPass){
+    if(FIREBASE_ENABLED && fbAuth && fbAuth.currentUser){
+      try{
+        await fbAuth.currentUser.updatePassword(newPass);
+      }catch(e){
+        console.warn(e);
+        msgBox.innerHTML = '<div class="msg err">Could not change password. Sign out and back in, then try again.</div>';
+        return;
+      }
+    }else{
+      state.settings.adminPassword = newPass;
+    }
+  }
+  await saveSettings();
+  msgBox.innerHTML='<div class="msg ok">Settings saved.</div>';
+  render(true);
+}
+
+/* ---------------- rendering ---------------- */
+function escapeHtml(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtPrice(n){ return state.settings.currency + ' ' + Number(n).toLocaleString(); }
+
+function plugIcon(color){
+  return `<svg viewBox="0 0 44 44" fill="none" class="plug-icon">
+    <path d="M22 8v8" stroke="${color}" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M15 8v8" stroke="${color}" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M11 16h15a1.5 1.5 0 0 1 1.5 1.5v3A9.5 9.5 0 0 1 18 30h-1a9.5 9.5 0 0 1-9.5-9.5v-3A1.5 1.5 0 0 1 9 16Z" stroke="${color}" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="M18 30v6" stroke="${color}" stroke-width="2.4" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function renderHeadRight(){
+  const el = document.getElementById('head-right');
+  if(state.isAdmin){
+    el.innerHTML = `<span class="btn btn-ghost btn-sm" style="pointer-events:none;">Admin mode</span><button class="btn btn-sm" onclick="go('admin')">Manage</button>`;
+  }else{
+    el.innerHTML = `<button class="btn btn-fill btn-sm" onclick="scrollToContact()">Contact us</button>`;
+  }
+}
+
+function renderAdminStrip(){
+  const holder = document.getElementById('admin-strip-holder');
+  if(!state.isAdmin){ holder.innerHTML=''; return; }
+  holder.innerHTML = `
+    <div class="admin-strip">
+      <div class="wrap">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="tag">ADMIN</span>
+          <div class="admin-tabs">
+            <button class="${state.adminView==='products'?'on':''}" onclick="setAdminView('products')">Products</button>
+            <button class="${state.adminView==='categories'?'on':''}" onclick="setAdminView('categories')">Categories</button>
+            <button class="${state.adminView==='settings'?'on':''}" onclick="setAdminView('settings')">Settings</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-fill btn-sm" onclick="downloadUpdatedSite()">Download updated site</button>
+          <button class="btn btn-ghost btn-sm" style="border-color:rgba(255,255,255,.3);color:#fff;" onclick="logoutAdmin()">Sign out</button>
+        </div>
+      </div>
+    </div>`;
+}
+function setAdminView(v){ state.view='admin'; state.adminView=v; render(); }
+function logoutAdmin(){ if(FIREBASE_ENABLED && fbAuth){ fbAuth.signOut().catch(()=>{}); } state.isAdmin=false; state.view='home'; render(); }
+
+function updateNavHighlight(){
+  document.querySelectorAll('nav.mainnav button').forEach(b=>b.classList.remove('on'));
+  if(state.view==='home') document.getElementById('nav-home').classList.add('on');
+  if(state.view==='category' && state.activeCategory==='Electronics') document.getElementById('nav-elec').classList.add('on');
+  if(state.view==='category' && state.activeCategory==='Home Accessories') document.getElementById('nav-homeacc').classList.add('on');
+}
+
+function render(skipModal){
+  renderHeadRight();
+  renderAdminStrip();
+  updateNavHighlight();
+  const main = document.getElementById('main');
+  document.getElementById('foot-year').textContent = new Date().getFullYear();
+
+  if(!state.ready){ main.innerHTML = `<div class="wrap" style="padding:80px 0;text-align:center;color:var(--ink-soft);">Loading catalog…</div>`; return; }
+
+  if(state.view==='admin' && state.isAdmin){
+    main.innerHTML = renderAdmin();
+    return;
+  }
+
+  let html = '';
+  if(state.view==='home'){
+    html += renderHero();
+    html += renderCategorySection();
+  }else if(state.view==='category'){
+    html += renderCategoryBrowse();
+  }
+  html += renderContact();
+  main.innerHTML = html;
+}
+
+function renderHero(){
+  return `
+  <div class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <div class="eyebrow">Electronics &amp; home accessories, one shop</div>
+        <h1>Everything that <em>plugs</em> into your home life.</h1>
+        <p>From phones and powerbanks to furniture and kitchenware — Plug My Home brings quality electronics and home accessories together, at prices that make sense.</p>
+        <div class="hero-ctas">
+          <button class="btn btn-fill" onclick="openCategory('Electronics')">Shop Electronics</button>
+          <button class="btn" style="border-color:#fff;color:#fff;" onclick="openCategory('Home Accessories')">Shop Home Accessories</button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <svg width="240" height="240" viewBox="0 0 240 240" fill="none">
+          <circle cx="120" cy="120" r="118" fill="#33367F"/>
+          <rect x="60" y="70" width="120" height="100" rx="18" stroke="#FAA41A" stroke-width="3" fill="none"/>
+          <path d="M95 70v-16M145 70v-16" stroke="#FAA41A" stroke-width="4" stroke-linecap="round"/>
+          <path d="M120 170v16" stroke="#FAA41A" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="100" cy="120" r="7" fill="#FFFFFF"/>
+          <circle cx="140" cy="120" r="7" fill="#FFFFFF"/>
+        </svg>
+      </div>
+    </div>
+    <svg class="cord" viewBox="0 0 1180 36" preserveAspectRatio="none"><path d="M0 18 Q 30 0 60 18 T 120 18 T 180 18 T 240 18 T 300 18 T 360 18 T 420 18 T 480 18 T 540 18 T 600 18 T 660 18 T 720 18 T 780 18 T 840 18 T 900 18 T 960 18 T 1020 18 T 1080 18 T 1180 18" stroke="#FAA41A" stroke-width="2" fill="none" opacity="0.35"/></svg>
+  </div>`;
+}
+
+function catThumb(cat){
+  const item = state.products.find(p=>p.category===cat && p.image);
+  return item ? item.image : null;
+}
+
+function renderCategorySection(){
+  let cards = '';
+  MAIN_CATS.forEach((cat,i)=>{
+    const cls = i===0 ? 'navy' : 'orange';
+    const iconColor = i===0 ? '#FAA41A' : '#2A2D7C';
+    const subs = state.categories[cat] || [];
+    cards += `
+    <div class="cat-card ${cls}" onclick="openCategory('${cat}')">
+      ${plugIcon(iconColor)}
+      <h3>${cat}</h3>
+      <p class="sub">${subs.length} subcategories · ${state.products.filter(p=>p.category===cat).length} items</p>
+      <div class="chip-row">${subs.slice(0,6).map(s=>`<span class="chip">${escapeHtml(s)}</span>`).join('')}</div>
+      <div class="cat-arrow">&rarr;</div>
+    </div>`;
+  });
+  return `
+  <section class="wrap">
+    <div class="sect-head">
+      <div><h2>Shop by category</h2><p>Two worlds, one home. Pick a category to browse.</p></div>
+    </div>
+    <div class="cat-grid">${cards}</div>
+  </section>`;
+}
+
+function renderCategoryBrowse(){
+  const cat = state.activeCategory;
+  const subs = state.categories[cat] || [];
+  const usedSubs = Array.from(new Set(state.products.filter(p=>p.category===cat).map(p=>p.subcategory)));
+  usedSubs.forEach(s=>{ if(s && !subs.includes(s)) subs.push(s); });
+  let filtered = state.products.filter(p=>p.category===cat && (state.activeSub==='All' || p.subcategory===state.activeSub));
+
+  let chips = `<button class="filter-chip ${state.activeSub==='All'?'on':''}" onclick="setSub('All')">All</button>`;
+  subs.forEach(s=>{
+    if(state.isAdmin){
+      chips += `<span class="filter-chip subcat-manage ${state.activeSub===s?'on':''}" style="padding-right:6px;">
+        <span onclick="setSub('${escapeHtml(s).replace(/'/g,"\\'")}')" style="cursor:pointer;">${escapeHtml(s)}</span>
+        <button class="x" title="Remove subcategory" onclick="event.stopPropagation();confirmDeleteSub('${escapeHtml(cat).replace(/'/g,"\\'")}','${escapeHtml(s).replace(/'/g,"\\'")}')">&times;</button>
+      </span>`;
+    }else{
+      chips += `<button class="filter-chip ${state.activeSub===s?'on':''}" onclick="setSub('${escapeHtml(s).replace(/'/g,"\\'")}')">${escapeHtml(s)}</button>`;
+    }
+  });
+  if(state.isAdmin){
+    chips += `<button class="filter-chip add" onclick="openAddSubModal('${escapeHtml(cat).replace(/'/g,"\\'")}')">+ Add subcategory</button>`;
+  }
+
+  let grid = '';
+  if(filtered.length===0){
+    grid = `<div class="empty"><b>No items here yet</b>${state.isAdmin? 'Add your first product to this category.' : 'Check back soon — new stock is on the way.'}</div>`;
+  }else{
+    grid = `<div class="prod-grid">${filtered.map(productCard).join('')}</div>`;
+  }
+
+  return `
+  <section class="wrap">
+    <div class="crumb"><b onclick="go('home')">Home</b> / ${escapeHtml(cat)}</div>
+    <div class="sect-head">
+      <div><h2>${escapeHtml(cat)}</h2><p>${filtered.length} item${filtered.length===1?'':'s'} ${state.activeSub!=='All'? 'in '+escapeHtml(state.activeSub) : ''}</p></div>
+      ${state.isAdmin? `<button class="btn btn-fill btn-sm" onclick="openProductModal(null)">+ Add product</button>` : ''}
+    </div>
+    <div class="filter-row">${chips}</div>
+    ${grid}
+  </section>`;
+}
+
+function productCard(p){
+  return `
+  <div class="prod-card">
+    <div class="prod-img">${p.image? `<img src="${p.image}" alt="${escapeHtml(p.name)}">` : phPlaceholder()}</div>
+    <div class="prod-body">
+      <div class="prod-tag">${escapeHtml(p.subcategory||'')}</div>
+      <p class="prod-name">${escapeHtml(p.name)}</p>
+      <p class="prod-desc">${escapeHtml(p.description||'')}</p>
+      <div class="prod-price">${fmtPrice(p.price)}</div>
+    </div>
+    ${state.isAdmin? `<div class="prod-admin-bar"><button class="btn btn-ghost btn-sm" onclick="openProductModal('${p.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="confirmDeleteProduct('${p.id}')">Delete</button></div>` : ''}
+  </div>`;
+}
+function phPlaceholder(){
+  return `<div class="ph"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg></div>`;
+}
+
+function renderContact(){
+  const s = state.settings;
+  return `
+  <section class="wrap" id="contact-section">
+    <div class="contact-wrap">
+      <div class="contact-left">
+        <h2>Get in touch</h2>
+        <p>Have a question about a product, price, or delivery? Reach us directly by phone or email — we usually reply the same day.</p>
+      </div>
+      <div class="contact-cards">
+        <a class="contact-card" href="mailto:${encodeURIComponent(s.email)}">
+          <div class="contact-ic">@</div>
+          <div><p class="lbl">Email us</p><p class="val">${escapeHtml(s.email)}</p></div>
+        </a>
+        <a class="contact-card" href="tel:${escapeHtml(s.phone.replace(/\s+/g,''))}">
+          <div class="contact-ic">&#9742;</div>
+          <div><p class="lbl">Call or WhatsApp</p><p class="val">${escapeHtml(s.phone)}</p></div>
+        </a>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ---------------- admin views ---------------- */
+function renderAdmin(){
+  if(state.adminView==='products') return renderAdminProducts();
+  if(state.adminView==='categories') return renderAdminCategories();
+  if(state.adminView==='settings') return renderAdminSettings();
+  return '';
+}
+function renderAdminProducts(){
+  const rows = state.products.length===0 ? `<div class="empty"><b>No products yet</b>Add your first item to get started.</div>` :
+    `<div class="plist">${state.products.map(p=>`
+      <div class="plist-row">
+        ${p.image? `<img class="plist-thumb" src="${p.image}">` : `<div class="plist-thumb" style="display:flex;align-items:center;justify-content:center;color:#B7B9DC;">${phPlaceholder()}</div>`}
+        <div class="plist-info">
+          <p class="n">${escapeHtml(p.name)}</p>
+          <p class="m">${escapeHtml(p.category)} · ${escapeHtml(p.subcategory)} · ${fmtPrice(p.price)}</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openProductModal('${p.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDeleteProduct('${p.id}')">Delete</button>
+      </div>`).join('')}</div>`;
+  return `
+  <div class="wrap">
+    <div class="admin-panel">
+      <div class="sect-head" style="margin-bottom:18px;">
+        <div><h2 style="font-size:22px;">Products</h2><p>${state.products.length} item(s) across your catalog.</p></div>
+        <button class="btn btn-fill btn-sm" onclick="openProductModal(null)">+ Add product</button>
+      </div>
+      ${rows}
+    </div>
+  </div>`;
+}
+function renderAdminCategories(){
+  const blocks = MAIN_CATS.map(cat=>{
+    const subs = state.categories[cat] || [];
+    return `
+    <div style="margin-bottom:26px;">
+      <h3 style="font-size:16px;color:var(--navy-deep);margin:0 0 10px;">${cat}</h3>
+      <div class="subcat-editrow">
+        ${subs.map(s=>`<span class="filter-chip subcat-manage on">${escapeHtml(s)}<button class="x" onclick="confirmDeleteSub('${escapeHtml(cat).replace(/'/g,"\\'")}','${escapeHtml(s).replace(/'/g,"\\'")}')">&times;</button></span>`).join('')}
+        <button class="filter-chip add" onclick="openAddSubModal('${escapeHtml(cat).replace(/'/g,"\\'")}')">+ Add subcategory</button>
+      </div>
+    </div>`;
+  }).join('');
+  return `
+  <div class="wrap">
+    <div class="admin-panel">
+      <h2 style="font-size:22px;margin:0 0 4px;">Categories</h2>
+      <p style="color:var(--ink-soft);font-size:14px;margin:0 0 20px;">The two main categories (Electronics and Home Accessories) are fixed. You can add or remove subcategories freely.</p>
+      ${blocks}
+    </div>
+  </div>`;
+}
+function renderAdminSettings(){
+  const s = state.settings;
+  return `
+  <div class="wrap">
+    <div class="admin-panel" style="max-width:520px;">
+      <h2 style="font-size:22px;margin:0 0 4px;">Store settings</h2>
+      <p style="color:var(--ink-soft);font-size:14px;margin:0 0 20px;">These details show on the storefront and contact section.</p>
+      <div id="settings-msg"></div>
+      <div class="field"><label>Business name</label><input type="text" id="set-bizname" value="${escapeHtml(s.businessName)}"></div>
+      <div class="field"><label>Contact email</label><input type="email" id="set-email" value="${escapeHtml(s.email)}"></div>
+      <div class="field"><label>Contact phone</label><input type="tel" id="set-phone" value="${escapeHtml(s.phone)}"></div>
+      <div class="field"><label>Currency symbol</label><input type="text" id="set-currency" value="${escapeHtml(s.currency)}"></div>
+      <div class="field"><label>${FIREBASE_ENABLED? 'Change your admin password' : 'New admin password'} <span style="font-weight:400;color:var(--ink-soft);">(leave blank to keep current)</span></label><input type="password" id="set-newpass" placeholder="••••••••"></div>
+      <button class="btn btn-fill" onclick="saveSettingsForm()">Save settings</button>
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--line);">
+        ${FIREBASE_ENABLED?
+          `<p style="font-size:13px;color:var(--ink-soft);line-height:1.6;margin:0;"><b style="color:var(--navy-deep);">Live database connected.</b> Product, category, and settings changes save straight to Firebase and appear for every visitor immediately — no re-uploading needed. The "Download updated site" button is just an optional backup copy.</p>`
+          :
+          `<p style="font-size:13px;color:var(--ink-soft);line-height:1.6;margin:0 0 12px;"><b style="color:var(--navy-deep);">Publishing on GitHub Pages:</b> this file has no live database yet, so edits here only save in your own browser as a draft. When you're ready for customers to see the changes, click <b>Download updated site</b> in the admin bar above and re-upload that file to your GitHub repository, replacing the old one.</p>`
+        }
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- init ---------------- */
+(async function init(){
+  if(FIREBASE_ENABLED && fbAuth){
+    fbAuth.onAuthStateChanged(user=>{
+      state.isAdmin = !!user;
+      if(state.ready) render();
+    });
+  }
+  await loadAll();
+  render();
+})();
+</script>
+</body>
+</html>
