@@ -266,6 +266,7 @@ let state = {
   categories:null,
   products:null,
   settings:null,
+  settingsMsg:null,
   ready:false
 };
 const MAIN_CATS = ['Electronics','Home Accessories'];
@@ -316,31 +317,60 @@ async function storageSet(key, value){
 }
 
 /* ---------- Firebase real-time sync ---------- */
+let FIREBASE_CONNECTED = false;   // true once we've confirmed a real, live connection
+let FIREBASE_LOAD_FAILED = false; // true if scripts/SDK never became available at all
+let lastSyncError = null;
+
 function startFirebaseSync(){
   return new Promise((resolve)=>{
-    if(!FIREBASE_ENABLED || !fbDb){ resolve(false); return; }
+    if(typeof firebase === 'undefined' || !FIREBASE_ENABLED || !fbDb){
+      FIREBASE_LOAD_FAILED = FIREBASE_ENABLED; // config was filled in, but SDK/db never came up
+      resolve(false);
+      return;
+    }
     let got = {cat:false, set:false, prod:false};
-    const done = ()=>{ if(got.cat && got.set && got.prod) resolve(true); };
+    let seeded = {cat:false, set:false};
+    const done = ()=>{ if(got.cat && got.set && got.prod){ FIREBASE_CONNECTED = true; resolve(true); } };
+
+    // Watchdog: if Firestore never responds (blocked by an ad-blocker, firewall, offline, etc.)
+    // stop waiting after 6s and fall back loudly instead of hanging or silently going local-only.
+    const watchdog = setTimeout(()=>{
+      if(!FIREBASE_CONNECTED){
+        FIREBASE_LOAD_FAILED = true;
+        lastSyncError = 'Timed out waiting for Firestore. This usually means an ad-blocker, browser privacy setting, or network is blocking Google\'s Firebase servers.';
+        resolve(false);
+      }
+    }, 6000);
 
     fbUnsubs.push(fbDb.collection('pmh_meta').doc('categories').onSnapshot(snap=>{
-      if(snap.exists && snap.data().value) state.categories = snap.data().value;
-      else fbDb.collection('pmh_meta').doc('categories').set({value: state.categories}).catch(e=>console.warn(e));
-      got.cat = true; done();
+      if(snap.exists && snap.data().value){
+        state.categories = snap.data().value;
+      }else if(!seeded.cat){
+        // Seed the document exactly once, the first time we see it's genuinely missing.
+        seeded.cat = true;
+        fbDb.collection('pmh_meta').doc('categories').set({value: state.categories}).catch(e=>{ console.warn(e); lastSyncError = 'categories: '+e.message; });
+      }
+      got.cat = true; clearTimeout(watchdog); done();
       if(state.ready) render();
-    }, err=>{ console.warn('categories sync error', err); got.cat=true; done(); }));
+    }, err=>{ console.warn('categories sync error', err); lastSyncError = 'categories: '+err.message; got.cat=true; done(); }));
 
     fbUnsubs.push(fbDb.collection('pmh_meta').doc('settings').onSnapshot(snap=>{
-      if(snap.exists) state.settings = {...DEFAULT_SETTINGS, ...snap.data()};
-      else { const {adminPassword, ...pub} = state.settings; fbDb.collection('pmh_meta').doc('settings').set(pub).catch(e=>console.warn(e)); }
-      got.set = true; done();
+      if(snap.exists){
+        state.settings = {...DEFAULT_SETTINGS, ...snap.data()};
+      }else if(!seeded.set){
+        seeded.set = true;
+        const {adminPassword, ...pub} = state.settings;
+        fbDb.collection('pmh_meta').doc('settings').set(pub).catch(e=>{ console.warn(e); lastSyncError = 'settings: '+e.message; });
+      }
+      got.set = true; clearTimeout(watchdog); done();
       if(state.ready) render();
-    }, err=>{ console.warn('settings sync error', err); got.set=true; done(); }));
+    }, err=>{ console.warn('settings sync error', err); lastSyncError = 'settings: '+err.message; got.set=true; done(); }));
 
     fbUnsubs.push(fbDb.collection('pmh_products').onSnapshot(snap=>{
       state.products = snap.docs.map(d=>({id:d.id, ...d.data()}));
-      got.prod = true; done();
+      got.prod = true; clearTimeout(watchdog); done();
       if(state.ready) render();
-    }, err=>{ console.warn('products sync error', err); got.prod=true; done(); }));
+    }, err=>{ console.warn('products sync error', err); lastSyncError = 'products: '+err.message; got.prod=true; done(); }));
   });
 }
 
@@ -351,8 +381,9 @@ async function loadAll(){
   state.settings = baked.settings;
 
   if(FIREBASE_ENABLED && fbDb){
-    try{ await startFirebaseSync(); }catch(e){ console.warn('Firebase sync failed, using local data', e); }
+    try{ await startFirebaseSync(); }catch(e){ console.warn('Firebase sync failed, using local data', e); lastSyncError = e.message; FIREBASE_LOAD_FAILED = true; }
   }else{
+    if(FIREBASE_ENABLED && !fbDb) FIREBASE_LOAD_FAILED = true; // config was set but SDK failed to init
     try{ const c = await storageGet('pmh_categories'); if(c) state.categories = JSON.parse(c); }catch(e){}
     try{ const p = await storageGet('pmh_products'); if(p) state.products = JSON.parse(p); }catch(e){}
     try{ const s = await storageGet('pmh_settings'); if(s) state.settings = {...DEFAULT_SETTINGS, ...JSON.parse(s)}; }catch(e){}
@@ -362,12 +393,20 @@ async function loadAll(){
 
 /* Categories & settings: small documents, safe to write in full each time. */
 async function saveCategories(){
-  if(FIREBASE_ENABLED && fbDb){ try{ await fbDb.collection('pmh_meta').doc('categories').set({value: state.categories}); }catch(e){ console.warn(e); alert('Could not save categories — check your connection and that you are signed in.'); } return; }
+  if(FIREBASE_ENABLED && fbDb && FIREBASE_CONNECTED){
+    try{ await fbDb.collection('pmh_meta').doc('categories').set({value: state.categories}); return {ok:true}; }
+    catch(e){ console.warn(e); lastSyncError = e.message; return {ok:false, error:e.message}; }
+  }
   await storageSet('pmh_categories', JSON.stringify(state.categories));
+  return {ok:true, local:true};
 }
 async function saveSettings(){
-  if(FIREBASE_ENABLED && fbDb){ try{ const {adminPassword, ...pub} = state.settings; await fbDb.collection('pmh_meta').doc('settings').set(pub); }catch(e){ console.warn(e); alert('Could not save settings — check your connection and that you are signed in.'); } return; }
+  if(FIREBASE_ENABLED && fbDb && FIREBASE_CONNECTED){
+    try{ const {adminPassword, ...pub} = state.settings; await fbDb.collection('pmh_meta').doc('settings').set(pub); return {ok:true}; }
+    catch(e){ console.warn(e); lastSyncError = e.message; return {ok:false, error:e.message}; }
+  }
   await storageSet('pmh_settings', JSON.stringify(state.settings));
+  return {ok:true, local:true};
 }
 /* Products: kept as local bulk save for the non-Firebase fallback only.
    When Firebase is enabled, each product is written to its own document instead — see
@@ -561,13 +600,21 @@ async function saveProduct(id){
   const existing = id ? state.products.find(x=>x.id===id) : null;
   const data = {category:cat, subcategory:sub, name, description:desc, price, image: window._pendingImage || (existing && existing.image) || null};
 
-  if(FIREBASE_ENABLED && fbDb){
+  if(FIREBASE_ENABLED){
+    if(!fbDb || !FIREBASE_CONNECTED){
+      document.getElementById('prod-msg').innerHTML = '<div class="msg err">Not connected to the live database right now, so this can\'t be saved for customers. Reload the page and check your internet connection (or try disabling any ad-blocker) before adding products.</div>';
+      return;
+    }
+    if(!fbAuth || !fbAuth.currentUser){
+      document.getElementById('prod-msg').innerHTML = '<div class="msg err">You\'re not actually signed in right now (your session may have expired). Sign out and back in, then try again.</div>';
+      return;
+    }
     const finalId = id || ('p_'+Date.now()+'_'+Math.random().toString(36).slice(2,7));
     try{
       await writeProductDoc({id: finalId, ...data});
     }catch(e){
       console.warn(e);
-      document.getElementById('prod-msg').innerHTML = '<div class="msg err">Could not save — check your connection and that you\'re signed in.</div>';
+      document.getElementById('prod-msg').innerHTML = '<div class="msg err">Could not save: '+escapeHtml(e.message||'unknown error')+'</div>';
       return;
     }
   }else{
@@ -656,8 +703,14 @@ async function saveSettingsForm(){
   const currency = document.getElementById('set-currency').value.trim() || 'KSh';
   const bizName = document.getElementById('set-bizname').value.trim() || 'Plug My Home';
   const newPass = document.getElementById('set-newpass') ? document.getElementById('set-newpass').value : '';
-  const msgBox = document.getElementById('settings-msg');
-  if(!email || !phone){ msgBox.innerHTML='<div class="msg err">Email and phone are required.</div>'; return; }
+  if(!email || !phone){ state.settingsMsg = '<div class="msg err">Email and phone are required.</div>'; render(true); return; }
+
+  if(FIREBASE_ENABLED && (!fbAuth || !fbAuth.currentUser)){
+    state.settingsMsg = '<div class="msg err">You\'re not actually signed in right now (your session may have expired). Sign out and sign back in, then try again.</div>';
+    render(true);
+    return;
+  }
+
   state.settings.email = email;
   state.settings.phone = phone;
   state.settings.currency = currency;
@@ -669,15 +722,22 @@ async function saveSettingsForm(){
         await fbAuth.currentUser.updatePassword(newPass);
       }catch(e){
         console.warn(e);
-        msgBox.innerHTML = '<div class="msg err">Could not change password. Sign out and back in, then try again.</div>';
+        state.settingsMsg = '<div class="msg err">Could not change password ('+escapeHtml(e.message||'unknown error')+'). Sign out and back in, then try again.</div>';
+        render(true);
         return;
       }
     }else{
       state.settings.adminPassword = newPass;
     }
   }
-  await saveSettings();
-  msgBox.innerHTML='<div class="msg ok">Settings saved.</div>';
+  const result = await saveSettings();
+  if(result.ok && result.local){
+    state.settingsMsg = '<div class="msg err">Saved locally only — not connected to the live database right now, so customers won\'t see this change yet. Check your connection and reload the page.</div>';
+  }else if(result.ok){
+    state.settingsMsg = '<div class="msg ok">Settings saved — live for everyone.</div>';
+  }else{
+    state.settingsMsg = '<div class="msg err">Could not save: '+escapeHtml(result.error||'unknown error')+'</div>';
+  }
   render(true);
 }
 
@@ -706,7 +766,18 @@ function renderHeadRight(){
 function renderAdminStrip(){
   const holder = document.getElementById('admin-strip-holder');
   if(!state.isAdmin){ holder.innerHTML=''; return; }
+
+  let statusHtml = '';
+  if(FIREBASE_ENABLED){
+    if(FIREBASE_CONNECTED){
+      statusHtml = `<div style="background:#1E5C33;color:#fff;font-size:13px;text-align:center;padding:6px 12px;">🟢 Connected to the live database — changes are visible to customers immediately.</div>`;
+    }else{
+      statusHtml = `<div style="background:#7A2020;color:#fff;font-size:13px;text-align:center;padding:8px 12px;">🔴 NOT connected to the live database right now${lastSyncError? ' — '+escapeHtml(lastSyncError) : ''}. Any changes you make will NOT reach customers. Try reloading the page, checking your internet connection, or disabling ad-blockers/privacy extensions for this site.</div>`;
+    }
+  }
+
   holder.innerHTML = `
+    ${statusHtml}
     <div class="admin-strip">
       <div class="wrap">
         <div style="display:flex;align-items:center;gap:12px;">
@@ -724,7 +795,7 @@ function renderAdminStrip(){
       </div>
     </div>`;
 }
-function setAdminView(v){ state.view='admin'; state.adminView=v; render(); }
+function setAdminView(v){ state.view='admin'; state.adminView=v; state.settingsMsg=null; render(); }
 function logoutAdmin(){ if(FIREBASE_ENABLED && fbAuth){ fbAuth.signOut().catch(()=>{}); } state.isAdmin=false; state.view='home'; render(); }
 
 function updateNavHighlight(){
@@ -955,7 +1026,7 @@ function renderAdminSettings(){
     <div class="admin-panel" style="max-width:520px;">
       <h2 style="font-size:22px;margin:0 0 4px;">Store settings</h2>
       <p style="color:var(--ink-soft);font-size:14px;margin:0 0 20px;">These details show on the storefront and contact section.</p>
-      <div id="settings-msg"></div>
+      <div id="settings-msg">${state.settingsMsg || ''}</div>
       <div class="field"><label>Business name</label><input type="text" id="set-bizname" value="${escapeHtml(s.businessName)}"></div>
       <div class="field"><label>Contact email</label><input type="email" id="set-email" value="${escapeHtml(s.email)}"></div>
       <div class="field"><label>Contact phone</label><input type="tel" id="set-phone" value="${escapeHtml(s.phone)}"></div>
